@@ -3,35 +3,26 @@ package com.saintrivers.dframe;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.ArrayList;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DFrame extends JFrame{
 
     JPanel masterPanel = new JPanel();
-    ArrayList<JPanel> panelsInOrder;
+    FormPanel formPanel;
+    ButtonPanel buttonPanel;
 
     public DFrame(String name, String[] fieldNames, String[] buttonNames){
-        panelsInOrder = initializeLocalPanels(fieldNames, buttonNames);
-        masterPanel = loadMasterPanel(panelsInOrder);
-        initializeFrame(name);
-    }
-
-    ArrayList<JPanel> initializeLocalPanels(String[] fieldNames, String[] buttonNames){
-        ArrayList<JPanel> panelList = new ArrayList<>();
-        panelList.add(new FormPanel(fieldNames));
-        panelList.add(new ButtonPanel(buttonNames));
-        return panelList;
-    }
-
-    JPanel loadMasterPanel(ArrayList<JPanel> panelList){
-        masterPanel.setLayout(new GridLayout(panelList.size(),1));
+        masterPanel.setLayout(new GridLayout(2,1));
         masterPanel.setBorder(new EmptyBorder(10,10,10,10));
-        for (JPanel p: panelList){
-            masterPanel.add(p);
-        }
-        return masterPanel;
+        formPanel = new FormPanel(fieldNames);
+        buttonPanel = new ButtonPanel(buttonNames);
+        masterPanel.add(formPanel);
+        masterPanel.add(buttonPanel);
+
+        initializeFrame(name);
     }
 
     void initializeFrame(String name){
@@ -59,11 +50,36 @@ class DFrameController {
         DFrameController controller = new DFrameController(
                 new DFrame("default", fieldNames, buttonNames)
         );
+        controller.addListenersToButtons();
     }
 
     void addListenersToButtons(){
-        // frameView.masterPanel
+        Map<String, JButton> map = frameView.buttonPanel.buttonsMap;
+        for (String name: buttonNames){
+            map.get(name).addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    buttonFunctionOf(name);
+                }
+            });
+        }
     }
+
+    void buttonFunctionOf(String buttonNames){
+        Map<String, JButton> map = frameView.buttonPanel.buttonsMap;
+        switch (buttonNames){
+            case "a":
+                System.out.println("take input");
+                break;
+            case "b":
+                System.out.println("exit");
+                break;
+            default:
+                break;
+        }
+    }
+
 }
 
 class FormPanel extends JPanel {
